@@ -10,28 +10,40 @@
 #
 
 rp_module_id="lr-vice"
-rp_module_desc="C64 emulator - port of VICE for libretro"
-rp_module_help="ROM Extensions: .crt .d64 .g64 .prg .t64 .tap .x64 .zip .vsf\n\nCopy your Commodore 64 games to $romdir/c64"
+rp_module_desc="C64 / VIC20 / Plus4 emulator - port of VICE for libretro"
+rp_module_help="ROM Extensions: .crt .d64 .g64 .prg .t64 .tap .x64 .zip .vsf\n\nCopy your games to $romdir/c64"
 rp_module_licence="GPL2 https://raw.githubusercontent.com/libretro/vice-libretro/master/vice/COPYING"
 rp_module_section="exp"
 rp_module_flags=""
+
+function _get_targets_lr-vice() {
+    echo x64 xplus4 xvic
+}
 
 function sources_lr-vice() {
     gitPullOrClone "$md_build" https://github.com/libretro/vice-libretro.git
 }
 
 function build_lr-vice() {
-    make clean
-    make
-    md_ret_require="$md_build/vice_x64_libretro.so"
+    mkdir -p "$md_build/cores"
+    local target
+    for target in $(_get_targets_lr-vice); do
+        make clean
+        make EMUTYPE="$target"
+        cp "$md_build/vice_${target}_libretro.so" "cores/"
+        md_ret_require+=("$md_build/cores/vice_${target}_libretro.so")
+    done
 }
 
 function install_lr-vice() {
     md_ret_files=(
         'vice/data'
         'vice/COPYING'
-        'vice_x64_libretro.so'
     )
+    local target
+    for target in $(_get_targets_lr-vice); do
+        md_ret_files+=("cores/vice_${target}_libretro.so")
+    done
 }
 
 function configure_lr-vice() {
@@ -41,6 +53,15 @@ function configure_lr-vice() {
     cp -R "$md_inst/data" "$biosdir"
     chown -R $user:$user "$biosdir/data"
 
-    addEmulator 1 "$md_id" "c64" "$md_inst/vice_x64_libretro.so"
+    local target
+    local name
+    for target in $(_get_targets_lr-vice); do
+        if [[ "$target" == "x64" ]]; then
+            name=""
+        else
+            name="-${target}"
+        fi
+        addEmulator 1 "$md_id${name}" "c64" "$md_inst/vice_${target}_libretro.so"
+    done
     addSystem "c64"
 }
