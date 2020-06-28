@@ -1,0 +1,23 @@
+--- a/Makefile
++++ b/Makefile
+@@ -470,7 +470,7 @@ endif
+ include Makefile.common
+ 
+ ifeq ($(HAVE_NEON), 1)
+-   COREFLAGS += -DHAVE_NEON -D__ARM_NEON__ -D__NEON_OPT -ftree-vectorize -mvectorize-with-neon-quad -ftree-vectorizer-verbose=2 -funsafe-math-optimizations -fno-finite-math-only
++   COREFLAGS += -DHAVE_NEON -D__ARM_NEON__ -D__NEON_OPT
+ endif
+ 
+ ifeq ($(LLE), 1)
+@@ -483,9 +483,9 @@ ifeq ($(DEBUG), 1)
+    CPUOPTS += -O0 -g
+    CPUOPTS += -DOPENGL_DEBUG
+ else
+-   CPUOPTS += -DNDEBUG -fsigned-char -ffast-math -fno-strict-aliasing -fomit-frame-pointer -fvisibility=hidden
++   CPUOPTS += -DNDEBUG -fsigned-char -fno-strict-aliasing -fvisibility=hidden
+ ifneq ($(platform), libnx)
+-   CPUOPTS := -O3 $(CPUOPTS)
++   CPUOPTS := -O2 $(CPUOPTS)
+ endif
+    CXXFLAGS += -fvisibility-inlines-hidden
+ endif

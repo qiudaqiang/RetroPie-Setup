@@ -27,14 +27,16 @@ function depends_lr-mupen64plus-next() {
 
 function sources_lr-mupen64plus-next() {
     gitPullOrClone "$md_build" https://github.com/libretro/mupen64plus-libretro-nx.git develop
+    # use -O2 and remove vectorization parameters / fast-math flags as they are of no benefit and can cause issues
+    applyPatch "$md_data/01_remove_bad_opts.diff"
 }
 
 function build_lr-mupen64plus-next() {
     local params=()
-    if isPlatform "videocore"; then
-        params+=(platform="$__platform")
-    elif isPlatform "mesa"; then
-        params+=(platform="$__platform-mesa")
+    if isPlatform "rpi"; then
+        params+=(platform="rpi")
+        isPlatform "neon" && params+=(HAVE_NEON=1)
+        isPlatform "mesa" && params+=(MESA=1)
     elif isPlatform "mali"; then
         params+=(platform="odroid")
     else
