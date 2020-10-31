@@ -43,6 +43,7 @@ function sources_retroarch() {
     applyPatch "$md_data/01_disable_search.diff"
     applyPatch "$md_data/02_shader_path_config_enable.diff"
     applyPatch "$md_data/03_revert_default_save_paths.diff"
+    applyPatch "$md_data/04_fix_static_function_placement.diff"
 }
 
 function build_retroarch() {
